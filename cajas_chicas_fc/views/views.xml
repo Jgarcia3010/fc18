@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="account_move_cajaschicas_view" model="ir.ui.view">
+    <field name="name">account.move.cajaschicas</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form" />
+    <field name="arch" type="xml">
+      <!-- Campo caja_chica después de ref -->
+      <xpath expr="//field[@name='ref']" position="after">
+        <field name="caja_chica" string="Compra de Caja Chica" 
+               invisible="move_type != 'in_invoice'"/>
+      </xpath>
+      
+      <!-- Campo facturaexterna en las líneas de factura -->
+      <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_subtotal']" position="before">
+        <field name="facturaexterna"
+               string="Factura de caja chica"
+               domain="[('move_id','=',parent.id)]"
+               options="{'no_create': True}"
+               column_invisible="parent.caja_chica == False"/>
+      </xpath>
+      
+      <!-- Nueva pestaña de Facturas de caja chica -->
+      <xpath expr="//notebook" position="inside">
+        <page string="Facturas de caja chica" 
+              name="tab_facturas_externas" 
+              invisible="caja_chica == False">
+          <field name="facturasexternas">
+            <list editable="bottom">
+              <field name="serie" string="Serie"/>
+              <field name="factura" string="No. Factura"/>
+              <field name="proveedor"/>
+              <field name="fecha"/>
+              <field name="company_id" invisible="1" />
+              <field name="fiscal_position_id" />
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+
+  <record id="purchase_order_cajaschicas_view" model="ir.ui.view">
+    <field name="name">purchase.order.cajaschicas</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form" />
+    <field name="arch" type="xml">
+      <!-- Campo caja_chica -->
+      <xpath expr="//field[@name='currency_id']" position="after">
+        <field name="caja_chica" string="Caja Chica" />
+      </xpath>
+      
+      <!-- Campo facturaexterna en las líneas de orden de compra -->
+      <xpath expr="//field[@name='order_line']//field[@name='price_subtotal']" position="before">
+        <field name="facturaexterna"
+               string="Factura de caja chica"
+               domain="[('purchase_order_id','=',parent.id)]"
+               options="{'no_create': True}"
+               column_invisible="parent.caja_chica == False"/>
+      </xpath>
+      
+      <!-- Nueva pestaña de Facturas de caja chica -->
+      <xpath expr="//notebook" position="inside">
+        <page string="Facturas de caja chica" 
+              name="tab_facturas_externas" 
+              invisible="caja_chica == False">
+          <field name="facturasexternas">
+            <list editable="bottom">
+              <field name="serie" string="Serie"/>
+              <field name="factura" string="No. Factura"/>
+              <field name="proveedor"/>
+              <field name="fecha"/>
+              <field name="company_id" invisible="1" />
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="action_update_facturas_externas_button" model="ir.actions.server">
+    <field name="name">Actualizar posiciones fiscales en facturas de caja chica.</field>
+    <field name="model_id" ref="model_account_move"/>
+    <field name="type">ir.actions.server</field>
+    <field name="binding_model_id" ref="model_account_move"/>
+    <field name="binding_view_types">list</field>
+    <field name="state">code</field>
+    <field name="code">
+for move in records:
+    if not move.caja_chica: continue
+    for factura in move.facturasexternas:
+        factura._onchange_partner_id()
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="fc_analytic_account_admin" model="res.groups">
+            <field name="name">Administrador de cuentas analíticas</field>
+        </record>
+        <record id="fc_res_partner_admin" model="res.groups">
+            <field name="name">Droide_Creación_Contacto (NEW)</field>
+        </record>
+    </data>
+</odoo>

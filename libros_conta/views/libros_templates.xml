@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- TEMPORALMENTE COMENTADO PARA PERMITIR INSTALACION -->
+    <!-- El archivo JavaScript se puede agregar manualmente despues -->
+    <!--
+    <template id="assets_backend" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/libros_conta/static/libros.js"></script> 
+        </xpath>
+    </template>
+    -->
+</odoo>

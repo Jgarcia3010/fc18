@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates>
+
+    <t t-extend="reconciliation.line.mv_line">
+        <t t-jquery=".cell_due_date" t-operation="after">
+            <td class="cell_due_date">
+                <t t-if="line.bank_operation_ref">
+                    <span class="font-weight-bold" t-esc="line.bank_operation_ref"/>
+                </t>
+            </td>
+        </t>
+    </t>
+</templates>
+

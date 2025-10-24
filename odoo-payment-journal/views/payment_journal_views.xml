@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="payment_journal_list_action">
+            <field name="name">Diarios de pago</field>
+            <field name="res_model">payment.journal</field>        
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="help" type ="html">
+                <p class="o_view_nocontent_smiling_face">
+                Crear el primer diario de pago
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="payment_journal_view_list">
+                <field name="name">payment.journal.list</field>
+                <field name='model'>payment.journal</field>
+                <field name="arch" type="xml">
+                        <list string="Diarios de pago">
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="journal_state" widget="badge" />
+                        </list>
+                </field>
+        </record>
+
+        <record model="ir.ui.view" id="payment_journal_view_form">
+            <field name='name'>payment.journal.form</field>
+            <field name="model">payment.journal</field>
+            <field name="arch" type="xml">
+                <form string="Diario de pagos">
+                    <header>
+                        <field name="journal_state" widget="statusbar" statusbar_visible="draft,posted,registered,cancel"/>
+                    </header>
+                    <sheet>
+                        <div name="button_box" class="oe_button_box">
+                            <button name="action_view_payments" class="oe_stat_button" type="object" icon="fa-thumbs-o-up">
+                                <field name="payment_count" widget="statinfo" string="Pagos" class="o_stat_value" />
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="date"/>
+                            </group>
+                            <group>
+                                <field name="journal_type"/>
+                                <field name="journal_amount_total"/>
+                                <field name="journal_amount" string="Importe adeudado" />
+                                <field name="journal_amount_paid" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Líneas de pago">
+                                <field name="payment_lines" readonly="journal_state == 'registered'" nolabel="1">
+                                    <list>
+                                        <field name="partner_id" />
+                                        <field name="journal_id" />
+                                        <field name="available_payment_method_ids" />
+                                        <field name="next_check_number" />
+                                        <field name="analytic_account_id" />
+                                        <field name="partner_bank_id" />
+                                        <field name="ref" />
+                                        <field name="amount_total" />
+                                        <field name="amount_paid" />
+                                        <field name="invoices_total" />
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <footer>
+                            <field name="journal_state" invisible="1" />
+                            <button name="validate_payment_journal" string="Validar" invisible="journal_state != 'draft'" type="object" />
+                            <button name="register_payment_journal" string="Registrar" invisible="journal_state != 'posted'" type="object"/>
+                            <button name="payment_journal_cancel" string="Anular" invisible="journal_state != 'registered'" type="object"/>
+                            <span invisible="journal_state != 'cancel'">ANULADO</span>
+                        </footer>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="payment_line_view_form">
+            <field name='name'>payment.line.form</field>
+            <field name="model">payment.line</field>
+            <field name="arch" type="xml">
+                <form string="Línea de diario de pagos">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="journal_id"/>
+                                <field name="available_payment_method_ids"/>
+                                <field name="payment_method_code" invisible="1" />
+                                <field name="next_check_number" invisible="payment_method_code != 'check_printing'" />
+                                <field name="is_down_payment" />
+                            </group>
+                            <group>
+                                <field name="analytic_account_id"/>
+                                <field name="partner_bank_id"/>
+                                <!--<field name="motive" />-->
+                                <field name="is_non_negociable" invisible="payment_method_code != 'check_printing'" />
+                                <field name="ref" />
+                                <field name="amount_to_pay" />
+                            </group>
+                            <!--<field name="allowed_invoices_ids" invisible="1"/>-->
+                            <field name="invoice_ids" nolabel="1" options="{'no_create': True}">
+                                <list>
+                                    <field name="name"/>
+                                    <!--<field name="x_studio_serie" optional="hide"/>-->
+                                    <field name="invoice_date_due"/>
+                                    <field name="activity_ids"/>
+                                    <field name="amount_untaxed_signed"/>
+                                    <field name="amount_total_signed" optional="hide" />
+                                    <field name="amount_residual" optional="show" />
+                                    <field name="payment_state"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem
+            id="menu_payment_wizard_journals"
+            name="Diarios de pago"
+            parent="account.menu_finance_payables"
+            action="payment_journal_list_action" />
+    </data>
+</odoo>

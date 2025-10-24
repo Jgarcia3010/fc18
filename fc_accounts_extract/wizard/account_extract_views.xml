@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_extract_wizard" model="ir.ui.view">
+        <field name="name">Extracto de cuentas</field>
+        <field name="model">account.extract.report</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" string="Opciones de reporte">
+                <group col="4">
+                    <field name="date_from" string="Fecha inicial" />
+                    <field name="date_to" string="Fecha final" />
+                    <field name="account_id" string="Cuenta" />
+                </group>
+                <group>
+                    <field name="file_name" invisible="1" />
+                    <field name="xls_file" readonly="1" filename="file_name" />
+                </group>
+                <footer>
+                    <!--<button name="pdf_report" string="Archivo PDF" type="object" default_focus="1" class="oe_highlight"/>-->
+                    <button name="xlsx_report" string="Archivo XLSX" type="object" default_focus="1" class="oe_highlight"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_extract_report_wizard" model="ir.actions.act_window">
+        <field name="name">Extracto de cuentas</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.extract.report</field>
+        <field name="view_mode">form</field>
+        <field name="context">{}</field>
+        <field name="help"></field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+      id="menu_account_extract_report"
+      parent="account.menu_finance_reports"
+      name="Extracto de cuentas (.xlsx)"
+      action="action_extract_report_wizard" />
+</odoo>

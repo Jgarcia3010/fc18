@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_libros_conta_libro_ventas,libros_conta.libro_ventas,model_account_invoice_libroventas,base.group_user,1,1,1,0
+access_libros_conta_libro_compras,libros_conta.libro_compras,model_account_invoice_librocompras,base.group_user,1,1,1,0
+access_libros_conta_extractos,libros_conta.extractos_de_cuentas,model_libros_conta_extractos_de_cuentas,base.group_user,1,1,1,0
+access_libros_conta_costos,libros_conta.costos,model_libros_conta_costos,base.group_user,1,1,1,0
+access_libros_conta_costos_facturas,libros_conta.costos_facturas,model_libros_conta_costos_facturas,base.group_user,1,1,1,0
+access_libros_conta_pagos,libros_conta.pagos,model_libros_conta_pagos,base.group_user,1,1,1,0

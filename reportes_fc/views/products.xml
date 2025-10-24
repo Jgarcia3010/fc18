@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_category_form_inherited_fcextras" model="ir.ui.view">
+        <field name="name">product.category.form.inherited.fcextras</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="tipo_de_gasto" />
+            </xpath>
+        </field>
+    </record>
+    <record id="product_template_form_view" model="ir.ui.view">
+       <field name="name">product.template.form.inherit.reportes</field>
+       <field name="model">product.template</field>
+       <field name="inherit_id" ref="product.product_template_form_view"/>
+       <field name="arch" type="xml">
+           <xpath expr="//group[@name='payables']" position="after">
+             <group name="fc" string="FC">
+                <field name="tipo_de_gasto" />
+             </group>
+           </xpath>
+       </field>
+   </record>
+</odoo>
