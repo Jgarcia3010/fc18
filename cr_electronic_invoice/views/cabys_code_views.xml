@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cabys_code_form" model="ir.ui.view">
+        <field name="name">cabys.code.form</field>
+        <field name="model">cabys.code</field>
+        <field name="arch" type="xml">
+            <form string="Código CABYS">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="parent_id"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_cabys_code_tree" model="ir.ui.view">
+        <field name="name">cabys.code.list</field>
+        <field name="model">cabys.code</field>
+        <field name="arch" type="xml">
+            <list string="Códigos CABYS">
+                <field name="name"/>
+                <field name="parent_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_cabys_code" model="ir.actions.act_window">
+        <field name="name">Códigos CABYS</field>
+        <field name="res_model">cabys.code</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

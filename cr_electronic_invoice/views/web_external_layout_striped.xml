@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Crear una plantilla NUEVA que extienda el comportamiento -->
+    <template id="report_layout_costa_rica" name="Costa Rica Report Layout" inherit_id="web.report_layout">
+        
+        <!-- Agregar nuestra plantilla como opción -->
+        <xpath expr="//t[@t-set='layout_templates']" position="inside">
+            <t t-set="costa_rica" t-value="'costa_rica'"/>
+        </xpath>
+
+    </template>
+
+    <!-- Nuestra plantilla personalizada -->
+    <template id="web.external_layout_costa_rica" name="Costa Rica Layout">
+        <t t-call="web.external_layout">
+            <t t-set="o_report_layout" t-value="'costa_rica'"/>
+            
+            <div class="header">
+                <!-- Tu header personalizado aquí -->
+                <div class="o_background_header">
+                    <table width="100%" style="border: none; margin-bottom: 10px;">
+                        <tr>
+                            <td style="width: 20%; vertical-align: top;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height:90px; max-width:180px;" alt="Logo"/>
+                            </td>
+                            <td style="width: 80%; vertical-align: top; text-align: left;">
+                                <div>
+                                    <span style="font-size:1.5em; font-weight:bold;" t-field="company.name"/>
+                                    <span style="font-size:0.9em; color:#888; margin-left:20px; vertical-align:super;">
+                                        Cédula Jurídica: <t t-esc="company.vat or ''"/>
+                                    </span>
+                                </div>
+                                <div t-if="company.report_header" style="font-size:1em; color:#555; margin-top:2px; margin-bottom:2px;">
+                                    <span t-field="company.report_header"/>
+                                </div>
+                                <div style="font-size:1em; margin-top:4px;">
+                                    <t t-if="company.phone"><span>Teléfono: <t t-esc="company.phone"/></span> | </t>
+                                    <t t-if="company.partner_id.street"><span t-esc="company.partner_id.street"/> | </t>
+                                    <t t-if="company.website"><span t-esc="company.website"/> | </t>
+                                    <t t-if="company.email"><span t-esc="company.email"/></t>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="article">
+                <t t-call="web.address_layout"/>
+                <t t-out="0"/>
+            </div>
+
+            <div class="footer">
+                <div class="text-center">
+                    <ul class="list-inline">
+                        <div t-field="company.report_footer"/>
+                    </ul>
+                    <div t-if="report_type == 'pdf'" class="text-muted">
+                        Page: <span class="page"/> of <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

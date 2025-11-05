@@ -1,0 +1,5 @@
+xmlsig
+jsonschema
+pyOpenSSL
+cryptography
+phonenumbers

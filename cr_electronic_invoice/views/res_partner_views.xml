@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================= -->
+    <!-- 1. VISTA FORMULARIO DE CONTACTOS (res.partner)   -->
+    <!-- ================================================= -->
+    <record id="view_res_partner_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Campo adicional después del término de pago -->
+            <field name="property_payment_term_id" position="after">
+                <field name="payment_methods_id" groups="account.group_account_invoice"/>
+            </field>
+
+            <!-- Campos adicionales relacionados con identificación -->
+            <field name="vat" position="after">
+                <field name="identification_id"/>
+                <field name="inscribed"/>
+                <field name="supplier_rank" invisible="1" readonly="1"/>
+            </field>
+
+            <!-- Sección para Actividades Económicas -->
+            <xpath expr="//form/sheet/notebook" position="before">
+                <group col="7">
+                    <separator colspan="7"/>
+                    <field name="activity_id"
+                           domain="[('id', 'in', economic_activities_ids)]"
+                           options="{'no_create': True, 'active_test': False}"
+                           colspan="5"/>
+                    <button name="action_get_economic_activities"
+                            type="object"
+                            string="Consultar Actividad Económica en Hacienda"
+                            colspan="2"/>
+                    <field name="economic_activities_ids"
+                           readonly="0"
+                           context="{'partner_id': id}"
+                           colspan="7">
+                        <list editable="bottom" string="Actividades Económicas">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="sale_type"/>
+                        </list>
+                    </field>
+                </group>
+            </xpath>
+
+            <!-- Configuración de exoneración -->
+            <field name="category_id" position="after">
+                <field name="has_exoneration" invisible="(supplier_rank > 0)"/>
+                <field name="export" invisible="(supplier_rank > 0)"/>
+            </field>
+
+            <xpath expr="//page[3]" position="after">
+                <page name="exoneration_config"
+                      string="Exoneration"
+                      invisible="(has_exoneration != True)">
+                    <group col="2">
+                        <field name="exoneration_number"/>
+                        <field name="type_exoneration"/>
+                        <field name="institution_name"/>
+                        <field name="percentage_exoneration"/>
+                        <field name="date_issue"/>
+                        <field name="date_expiration"/>
+                    </group>
+                    <field name="allowed_cabys_ids">
+                        <list string="Códigos CABYS" editable="bottom" create="false" delete="false">
+                            <field name="parent_id" invisible="1"/>
+                            <field name="name"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================================================= -->
+    <!-- 2. VISTA TREE PARA economic.activity             -->
+    <!-- ================================================= -->
+    <record id="view_economic_activity_tree" model="ir.ui.view">
+        <field name="name">economic.activity.tree</field>
+        <field name="model">economic.activity</field>
+        <field name="arch" type="xml">
+            <list string="Economic Activities">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="sale_type"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================= -->
+    <!-- 3. VISTA TREE PARA CABYS CODES                   -->
+    <!-- ================================================= -->
+    <record id="view_cabys_code_tree" model="ir.ui.view">
+        <field name="name">cabys.code.tree</field>
+        <field name="model">cabys.code</field>
+        <field name="arch" type="xml">
+            <list string="Códigos CABYS">
+                <field name="parent_id" invisible="1"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>
