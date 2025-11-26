@@ -1,62 +1,56 @@
-odoo.define('libros_conta.LibrosController ', function (require) {
-    "use strict";
+/** @odoo-module **/
 
-    var core = require('web.core');
-    var ListController = require('web.ListController');
-    var ListView = require('web.ListView');
-    var viewRegistry = require('web.view_registry');
+import { ListController } from "@web/views/list/list_controller";
+import { listView } from "@web/views/list/list_view";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
-    var qweb = core.qweb;
+export class LibrosController extends ListController {
+    setup() {
+        super.setup();
+        this.orm = useService("orm");
+        this.action = useService("action");
+    }
 
-    var LibrosController = ListController.extend({
+    async onClickImprimir() {
+        const state = this.model.root;
+        const domain = state.domain;
+        const resModel = state.resModel;
+        
+        // Obtener los campos exportables
+        const fields = Object.keys(state.activeFields).filter(
+            fieldName => {
+                const field = state.fields[fieldName];
+                return field && field.exportable !== false;
+            }
+        );
 
-        // -------------------------------------------------------------------------
-        // Public
-        // -------------------------------------------------------------------------
+        try {
+            const result = await this.orm.call(
+                resModel,
+                "imprimir",
+                [null, fields, domain, this.props.context || {}],
+                { context: this.props.context }
+            );
+            
+            if (result) {
+                await this.action.doAction(result);
+            }
+        } catch (error) {
+            this.notification.add(
+                "Error al generar el reporte",
+                { type: "danger" }
+            );
+            console.error("Error al imprimir:", error);
+        }
+    }
+}
 
-        init: function (parent, model, renderer, params) {
-            this.context = renderer.state.getContext();
-            return this._super.apply(this, arguments);
-        },
+LibrosController.template = "libros_conta.ListView.Buttons";
 
-        /**
-        * @override
-        */
-        renderButtons: function ($node) {
-            var self = this;
-            this._super.apply(this, arguments);
-            var $button = $(qweb.render('LibrosConta.BotonImprimir'));
-            $button.click(function () {
-                let state = self.model.get(self.handle);
-                const domain = state.getDomain();
-                let fields = self.renderer.columns.filter(field => field.tag === 'field' && state.fields[field.attrs.name].exportable !== false).map(field => field.attrs.name);
+export const librosListView = {
+    ...listView,
+    Controller: LibrosController,
+};
 
-                self._rpc({
-                    model: state.model,
-                    method: "imprimir",
-                    args: [null, fields, domain, self.odoo_context || {} ],
-                    context: self.odoo_context,
-                }).then(function(result){
-                    if (!result) return;
-                        
-                    var nextAction = self.do_action(result);
-                    $button.attr('disabled', false);
-                    return nextAction;
-                }).guardedCatch(function() {
-                    $button.attr('disabled', false);
-                });;
-            });
-            this.$buttons.prepend($button);
-        },
-    });
-
-
-    var LibrosView = ListView.extend({
-        config: _.extend({}, ListView.prototype.config, {
-            Controller: LibrosController
-        })
-    });
-
-    viewRegistry.add('libros_list_view', LibrosView);
-
-});
+registry.category("views").add("libros_list_view", librosListView);
