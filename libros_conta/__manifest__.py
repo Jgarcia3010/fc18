@@ -8,7 +8,6 @@
     'description': 'Módulo para reportes de libros de compras y ventas',
     'website': "http://www.guilles.website",
     
-    # 1. CORRECCIÓN: Eliminamos 'odoo-payment-journal'
     'depends': ['base', 'account', 'purchase', 'product'], 
 
     'data': [
@@ -28,9 +27,9 @@
 
     'assets': {
         'web.assets_backend': [
-            'libros_conta/static/libros.xml',
-            # 2. CORRECCIÓN: Agregamos el archivo JS que faltaba
-            'libros_conta/static/libros.js',
+            # NOTA LAS NUEVAS RUTAS CON /src/
+            'libros_conta/static/src/xml/libros.xml',
+            'libros_conta/static/src/js/libros.js',
         ],
     },
 
