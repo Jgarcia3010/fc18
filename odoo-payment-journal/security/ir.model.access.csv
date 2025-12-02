@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_payment_journal,Access payment journal,model_payment_journal,,1,1,1,1
-access_payment_journal_line,Access payment journal line,model_payment_line,,1,1,1,1
-access_payment_journal_type,Access payment journal type,model_payment_journal_type,,1,1,1,1
