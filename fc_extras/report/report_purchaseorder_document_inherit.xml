@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="purchase_report_document_inherit_fc" inherit_id="purchase.report_purchaseorder_document">
+        <!-- Usar un xpath más confiable -->
+         <!--prueba -->
+        <xpath expr="//div[@id='informations']" position="inside">
+            <div t-if="o.analytic_account_id" class="col-3 mb-2">
+                <strong>Cuenta analítica:</strong>
+                <p t-field="o.analytic_account_id" class="m-0"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>
