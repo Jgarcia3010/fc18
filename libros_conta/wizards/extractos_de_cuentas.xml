@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del wizard -->
+    <record id="extractos_de_cuentas" model="ir.ui.view">
+        <field name="name">Extracto de cuenta</field>
+        <field name="model">libros_conta.extractos_de_cuentas</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" string="Report Options">
+                <group col="4">
+                    <field name="date_from" string="Fecha inicial" />
+                    <field name="date_to" string="Fecha final" />
+                    <field name="account" required="1" string="Cuenta" />
+                </group>
+                <group>
+                    <field name="journal_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                    <field name="target_move" widget="radio"/>
+                    <field name="name" invisible="1" />
+                    <field name="file" readonly="1" filename="name" />
+                </group>
+                <footer>
+                    <button name="check_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="print_xls_file" string=".XLS" type="object" />
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de ventana -->
+    <record id="extractos_action" model="ir.actions.act_window">
+        <field name="name">Extracto de cuenta</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">libros_conta.extractos_de_cuentas</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="extractos_de_cuentas_menu" parent="account.menu_finance_reports" name="Extractos de cuentas" sequence="11" action="extractos_action"/>
+
+    <!-- REPORTE PDF PERSONALIZADO -->
+    <template id="report_extracto_cuenta">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.internal_layout">
+                    <div class="page">
+                        <!-- Encabezado -->
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h2>Extracto de Cuenta</h2>
+                                <h4 t-esc="data['form']['account_name']"/>
+                            </div>
+                        </div>
+
+                        <!-- Información del reporte -->
+                        <div class="row mt-4">
+                            <div class="col-4">
+                                <strong>Compañía:</strong>
+                                <p t-esc="company.name"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Fecha Inicial:</strong>
+                                <p t-esc="data['form']['date_from'] or 'No especificada'"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Fecha Final:</strong>
+                                <p t-esc="data['form']['date_to'] or 'No especificada'"/>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de movimientos -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Asiento</th>
+                                            <th>Fecha</th>
+                                            <th>Cuenta</th>
+                                            <th>Referencia</th>
+                                            <th>Proyecto</th>
+                                            <th>NIT</th>
+                                            <th>Contacto</th>
+                                            <th>Descripción</th>
+                                            <th>Debe</th>
+                                            <th>Haber</th>
+                                            <th>Saldo Acumulado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="saldo_acumulado" t-value="0"/>
+                                        <t t-foreach="o._get_report_lines(data)" t-as="line">
+                                            <t t-set="saldo_acumulado" t-value="saldo_acumulado + (line.credit - line.debit)"/>
+                                            <tr>
+                                                <td t-esc="line.move_id.name"/>
+                                                <td t-esc="line.date"/>
+                                                <td t-esc="line.account_id.code"/>
+                                                <td t-esc="line.move_id.ref or ''"/>
+                                                <td>
+                                                    <t t-if="line.analytic_account_id">
+                                                        <span t-esc="line.analytic_account_id.code"/>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <t t-if="line.partner_id">
+                                                        <span t-esc="line.partner_id.vat or ''"/>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <t t-if="line.partner_id">
+                                                        <span t-esc="line.partner_id.name or ''"/>
+                                                    </t>
+                                                </td>
+                                                <td t-esc="line.name"/>
+                                                <td class="text-right">
+                                                    <span t-esc="'{:,.2f}'.format(line.debit)"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-esc="'{:,.2f}'.format(line.credit)"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-esc="'{:,.2f}'.format(saldo_acumulado)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="font-weight: bold;">
+                                            <td colspan="8" class="text-right">TOTALES:</td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(sum(line.debit for line in o._get_report_lines(data)))"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(sum(line.credit for line in o._get_report_lines(data)))"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(saldo_acumulado)"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Acción del reporte -->
+    <record id="action_report_extracto" model="ir.actions.report">
+        <field name="name">Extracto de Cuenta</field>
+        <field name="model">libros_conta.extractos_de_cuentas</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">libros_conta.report_extracto_cuenta</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+        <field name="print_report_name">'Extracto de Cuenta - %s' % (object.account.code)</field>
+    </record>
+
+</odoo>
+                   

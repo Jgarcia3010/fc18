@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <record id="wizard_pagos" model="ir.ui.view">
+        <field name="name">Common Report</field>
+        <field name="model">libros_conta.pagos</field>
+        <field name="arch" type="xml">
+        <form string="Report Options">
+            <group col="4">
+                <field name="date_from" invisible="1"/>
+                <field name="date_to" invisible="1"/>
+            </group>
+            <group>
+                <field name="payment_journal_id" />
+                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+            </group>
+            <footer>
+                <button name="get_report" string="Descargar" type="object" default_focus="1" class="oe_highlight"/>
+                <button string="Cancel" class="btn btn-secondary" special="cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
+
+    <record id="pagos_action" model="ir.actions.act_window">
+        <field name="name">Transacciones bancarias</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">libros_conta.pagos</field>
+        <field name="view_mode">form</field>
+        <field name="context">{}</field>
+        <field name="help">Pagos</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="pagos_menu" parent="account.menu_finance_reports" name="Transacciones bancarias (pagos)" sequence="15" action="libros_conta.pagos_action"/>
+
+
+</odoo>

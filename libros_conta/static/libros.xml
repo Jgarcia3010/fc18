@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="libros_conta.ListView.Buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+            <button class="btn btn-primary o-kanban-button-new" type="button" t-on-click="onClickImprimir">
+                <i class="fa fa-print"/> Imprimir
+            </button>
+        </xpath>
+    </t>
+
+</templates>
