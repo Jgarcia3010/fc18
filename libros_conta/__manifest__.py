@@ -18,7 +18,6 @@
         'data/libros.xml',
         'wizards/extractos_de_cuentas.xml',
         'wizards/pagos.xml',
-        'views/forms.xml',
         'views/products.xml',
         'views/partner.xml',
         'views/account_views.xml',
