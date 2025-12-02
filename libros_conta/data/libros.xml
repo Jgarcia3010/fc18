@@ -21,12 +21,14 @@
         <record id="action_imprimir_libro_compras" model="ir.actions.report">
             <field name="name">Libro de compras</field>
             <field name="display_name">Libro de compras</field>
-            <field name="model">account.invoice.librocompras</field>
+            <field name="model">account.invoice.librocompras</field> 
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">libros_conta.libro_template_compras</field>
             <field name="report_file">libros_conta.libro_template_compras</field>
-            <field name="print_report_name">'Libro de Compras FC</field>
-            <field name="paperformat_id" ref="libros_conta.paperformat_libro"/>
+            <field name="print_report_name">'Libro de Compras FC'</field>
+            
+            <field name="paperformat_id" ref="paperformat_libro"/>
+            
             <field name="attachment_use">False</field>
         </record>
         
@@ -37,12 +39,12 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">libros_conta.libro_template_ventas</field>
             <field name="report_file">libros_conta.libro_template_ventas</field>
-            <field name="print_report_name">'Libro de Ventas FC</field>
-            <field name="paperformat_id" ref="libros_conta.paperformat_libro"/>
+            <field name="print_report_name">'Libro de Ventas FC'</field>
+            
+            <field name="paperformat_id" ref="paperformat_libro"/>
+            
             <field name="attachment_use">False</field>
         </record>
 
-        
     </data>
 </odoo>
- 
