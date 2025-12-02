@@ -111,5 +111,78 @@
         <menuitem id="libro_de_ventas_menu" name="Libro de Ventas" sequence="10" action="libro_ventas_action" parent="account.menu_finance_reports"/>
         <menuitem id="libro_de_compras_menu" name="Libro de Compras" sequence="10" action="libro_compras_action" parent="account.menu_finance_reports"/>
 
-        </data>
+        <record id="search_costos" model="ir.ui.view">
+            <field name="name">libros_conta.search_costos</field>
+            <field name="model">libros_conta.costos</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Costos">
+                    <filter name="fecha" date="fecha"/>
+                    <field name="partner" string="Proveedor" operator="child_of"/>
+                    <field string="Proyecto" name="analytic_account" />
+                    <group expand="1" string="Group By">
+                        <filter string="Proveedor" name="partner" context="{'group_by':'partner','residual_visible':True}" />
+                        <filter string="Mes" name="month" context="{'group_by':'fecha:month'}" />
+                        <filter string="Proyecto" name="analytic_account" context="{'group_by':'analytic_account','residual_visible':True}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_libros_conta_costos_tree" model="ir.ui.view">
+            <field name="name">libros_conta.costos.tree</field>
+            <field name="model">libros_conta.costos</field>
+            <field name="arch" type="xml">
+              <list create="false" edit="false">
+                <field name="analytic_account" />
+                <field name="order_id" />
+                <field name="move" string="Caja chica" />
+                <field name="user_id" />
+                <field name="partner" />
+                <field name="vat" />
+                <field name="fecha" />
+                <field name="product" />
+                <field name="description" />
+                <field name="quantity" />
+                <field name="unitprice" />
+                <field name="total" sum="total"/>
+              </list>
+            </field>
+        </record>
+
+        <record id="costos_action" model="ir.actions.act_window">
+            <field name="name">Costos (orden de compra)</field>
+            <field name="res_model">libros_conta.costos</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="search_costos" />
+        </record>
+        <menuitem id="libro_costos_menu" name="Costos (orden de compra)" sequence="14" action="costos_action" parent="account.menu_finance_reports" />
+
+        <record id="view_libros_conta_costos_facturas_tree" model="ir.ui.view">
+            <field name="name">libros_conta.costos_facturas.tree</field>
+            <field name="model">libros_conta.costos_facturas</field>
+            <field name="arch" type="xml">
+              <list create="false" edit="false">
+                <field name="analytic_account" />
+                <field name="move" string="Caja chica" />
+                <field name="partner" />
+                <field name="vat" />
+                <field name="fecha" />
+                <field name="product" />
+                <field name="description" />
+                <field name="quantity" />
+                <field name="unitprice" />
+                <field name="total" sum="total"/>
+              </list>
+            </field>
+        </record>
+
+        <record id="costos_facturas_action" model="ir.actions.act_window">
+            <field name="name">Costos (factura)</field>
+            <field name="res_model">libros_conta.costos_facturas</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="search_costos" />
+        </record>
+        <menuitem id="libro_costos_facturas_menu" name="Costos (factura)" sequence="15" action="costos_facturas_action" parent="account.menu_finance_reports" />
+
+    </data>
 </odoo>
