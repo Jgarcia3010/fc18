@@ -17,7 +17,6 @@ export class LibrosController extends ListController {
         const domain = state.domain;
         const resModel = state.resModel;
         
-        // Obtener los campos exportables
         const fields = Object.keys(state.activeFields).filter(
             fieldName => {
                 const field = state.fields[fieldName];
@@ -53,4 +52,4 @@ export const librosListView = {
     Controller: LibrosController,
 };
 
-registry.category("views").add("libros_list_view", librosListView);
+registry.category("views").add("libros_conta_list_view", librosListView);
