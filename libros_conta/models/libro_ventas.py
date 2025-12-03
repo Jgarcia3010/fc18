@@ -155,7 +155,7 @@ WHERE
       move.move_type IN ('out_invoice', 'out_refund')
       AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
       AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-      AND NOT line.exclude_from_invoice_tab
+      AND line.display_type IS NULL
       AND move.state NOT IN ('draft', 'cancel')
 
 GROUP BY

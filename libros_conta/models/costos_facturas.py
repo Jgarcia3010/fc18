@@ -71,7 +71,7 @@ class ReportCostosFacturas(models.Model):
                 WHERE
                     move.move_type IN ('in_invoice', 'in_refund')
                     AND COALESCE(product.default_code, '') <> 'ISR RETENCIONES'
-                    AND NOT line.exclude_from_invoice_tab
+                    AND line.display_type IS NULL
                     AND move.state NOT IN ('draft', 'cancel')
                     AND COALESCE(move.caja_chica, FALSE) = FALSE
                     AND move.company_id = {}
@@ -103,7 +103,7 @@ class ReportCostosFacturas(models.Model):
                 WHERE
                     move.move_type IN ('in_invoice', 'in_refund')
                     AND COALESCE(product.default_code, '') <> 'ISR RETENCIONES'
-                    AND NOT line.exclude_from_invoice_tab
+                    AND line.display_type IS NULL
                     AND line.facturaexterna IS NOT NULL
                     AND move.state NOT IN ('draft', 'cancel')
                     AND move.caja_chica = TRUE
