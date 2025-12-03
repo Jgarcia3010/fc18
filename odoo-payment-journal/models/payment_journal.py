@@ -49,7 +49,7 @@ class PaymentJournal(models.Model):
             ('cancel','Cancelado')
         ],
         default = 'draft',
-        ondelete = 'cascade',
+        # ondelete = 'cascade',  <-- LÍNEA ELIMINADA (Causaba el error)
         tracking = True
     )
     payment_lines = fields.One2many(
