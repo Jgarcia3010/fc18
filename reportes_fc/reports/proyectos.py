@@ -6,7 +6,10 @@ class Proyectos(models.Model):
     _description = "Reporte de Proyectos"
     _auto = False
 
-    proyecto = fields.Many2one('account.analytic.group', readonly=True, string="Proyecto")
+    # CORRECCIÓN 1: Cambiado de account.analytic.group a account.analytic.plan
+    # En Odoo 18 los grupos se gestionan como Planes Analíticos.
+    proyecto = fields.Many2one('account.analytic.plan', readonly=True, string="Proyecto")
+    
     subproyecto = fields.Many2one('account.analytic.account', readonly=True, string="Sub Proyecto")
     facturado_total = fields.Float(string='Total facturado')
     anticipo = fields.Float(string='Anticipo')
@@ -69,10 +72,10 @@ class Proyectos(models.Model):
           (
             SELECT
                 account_analytic_account.id AS id,
-                account_analytic_account.group_id AS proyecto,
+                -- CORRECCIÓN 2: group_id ya no existe, se usa plan_id
+                account_analytic_account.plan_id AS proyecto,
                 account_analytic_account.id AS subproyecto,
                 (
-                    -- https://github.com/odoo/odoo/blob/14.0/addons/account/models/account_payment.py#L463
                     SELECT
                         SUM(move.amount_total)
                     FROM account_payment payment
@@ -88,9 +91,13 @@ class Proyectos(models.Model):
                         part.credit_move_id = counterpart_line.id
                     JOIN account_move invoice ON invoice.id = counterpart_line.move_id
                     JOIN account_account account ON account.id = line.account_id
-                    WHERE account.internal_type IN ('receivable', 'payable')
+                    -- CORRECCIÓN 3: internal_type cambió a account_type y los valores también
+                    WHERE account.account_type IN ('asset_receivable', 'liability_payable')
                         AND line.id != counterpart_line.id
                         AND invoice.move_type in ('in_invoice', 'in_refund')
+                        -- CORRECCIÓN 4: payment.analytic_account no existe en base, asegúrate que este campo custom exista
+                        -- Si payment.analytic_account es un campo custom tuyo, déjalo. Si no, esto fallará después.
+                        -- Asumo que es custom por tu módulo anterior.
                         AND payment.analytic_account = account_analytic_account.id
                         AND payment.es_anticipo IS TRUE
                 ) AS anticipo_facturado,
