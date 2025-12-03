@@ -100,8 +100,8 @@ class AccountMove(models.Model):
     # Invoice reference for the capitalization move
     capitalization_invoice_id = fields.Many2one('account.move', string="Factura de capitalización")
     
-    # Move reference for the capitalization invoice
-    capitalization_move_id = fields.Monetary(string="Asiento de capitalización")
+    # CORRECCIÓN: Cambiado de Monetary a Many2one para solucionar el DatatypeMismatch
+    capitalization_move_id = fields.Many2one('account.move', string="Asiento de capitalización")
 
     iva_withhold_value = fields.Monetary(
         string='Retención IVA'
