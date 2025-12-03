@@ -40,6 +40,8 @@ class PaymentJournal(models.Model):
         string = 'Total',
         compute = '_compute_journal_amount'
     )
+    
+    # --- CAMPO CORREGIDO PARA ODOO 18 ---
     journal_state = fields.Selection(
         string = 'Estado',
         selection = [
@@ -49,9 +51,17 @@ class PaymentJournal(models.Model):
             ('cancel','Cancelado')
         ],
         default = 'draft',
-        # ondelete = 'cascade   ',  <-- LÍNEA ELIMINADA (Causaba el error)
+        # Ahora usamos un diccionario para definir el comportamiento de borrado
+        ondelete = {
+            'draft': 'cascade',
+            'posted': 'cascade',
+            'registered': 'cascade',
+            'cancel': 'cascade'
+        },
         tracking = True
     )
+    # ------------------------------------
+
     payment_lines = fields.One2many(
         comodel_name='payment.line',
         inverse_name='payment_journal_id',
