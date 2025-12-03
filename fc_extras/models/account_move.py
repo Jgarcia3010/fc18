@@ -9,6 +9,10 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    # --- AGREGA ESTE CAMPO PARA CORREGIR EL ERROR ---
+    no_followup = fields.Boolean(string="Excluir de seguimientos", default=False)
+    # ------------------------------------------------
+
     def _post(self, soft=False):
         for rec in self:
             if rec.move_type == 'out_invoice':
