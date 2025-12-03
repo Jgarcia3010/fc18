@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+  <data>
+    <record id="search_proyectos" model="ir.ui.view">
+        <field name="name">reportesfc.search_proyectos</field>
+        <field name="model">reportesfc.proyectos</field>
+        <field name="arch" type="xml">
+            <search string="Proyectos">
+                <filter string="Proyecto" name="proyecto" />
+                <filter string="Subproyecto" name="subproyecto" />
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter string="Proyecto" name="proyecto" context="{'group_by':'proyecto'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="view_reportesfc_proyectos_form" model="ir.ui.view">
+        <field name="name">reportesfc.proyectos.form</field>
+        <field name="model">reportesfc.proyectos</field>
+        <field name="arch" type="xml">
+          <form create="false" edit="false"><sheet><group col="4">
+                <field name="proyecto" />
+                <field name="subproyecto" />
+                <field name="facturado_total" />
+          </group></sheet></form>
+        </field>
+    </record>
+    <record id="view_reportesfc_proyectos_tree" model="ir.ui.view">
+        <field name="name">reportesfc.proyectos.tree</field>
+        <field name="model">reportesfc.proyectos</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false">
+              <field name="proyecto"/>
+              <field name="subproyecto"/>
+              <field name="facturado_total" sum="Total"/>
+              <field name="anticipo" sum="Total"/>
+              <field name="anticipo_facturado" sum="Total"/>
+              <field name="pendiente_facturar" sum="Total"/>
+              <field name="facturas_pendientes" sum="Total"/>
+              <field name="presupuesto" sum="Total"/>
+              <field name="por_cobrar" sum="Total"/>
+              <field name="honorarios_obra" sum="Total"/>
+              <field name="costo_directo" sum="Total"/>
+              <field name="mano_de_obra" sum="Total"/>
+              <field name="impuestos" sum="Total"/>
+              <field name="cuota_admin" sum="Total"/>
+              <field name="total_gastos" sum="Total"/>
+              <field name="pendiente_ejecutar" sum="Total"/>
+              <field name="anticipos_proveedor" sum="Total"/>
+              <field name="por_pagar" sum="Total"/>
+              <field name="iva_por_pagar" sum="Total"/>
+              <field name="iva_por_cobrar" sum="Total" />
+              <field name="iva_proyecto" sum="Total" />
+            </list>
+        </field>
+    </record>
+    <record id="proyectos_action" model="ir.actions.act_window">
+        <field name="name">Estado financiero de proyectos</field>
+        <field name="res_model">reportesfc.proyectos</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+        <field name="search_view_id" ref="reportes_fc.search_proyectos" />
+    </record>
+    <menuitem id="reportesfc_proyectos_menu" name="Proyectos" sequence="10" action="reportes_fc.proyectos_action" parent="account.account_reports_management_menu" />
+
+  </data>
+</odoo>
