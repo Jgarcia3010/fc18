@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="libros_conta.ListView.Buttons">
-        <!-- Botones vacíos para evitar errores -->
-        <div></div>
+    
+    <!-- Botones personalizados para la vista lista -->
+    <t t-name="libros_conta.ListView.Buttons" owl="1">
+        <div class="o_cp_buttons">
+
+            <button type="button"
+                    class="btn btn-primary"
+                    t-on-click="onClickImprimir">
+                <i class="fa fa-print me-1"></i> Imprimir
+            </button>
+
+        </div>
     </t>
+
 </templates>
