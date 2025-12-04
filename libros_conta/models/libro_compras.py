@@ -11,11 +11,6 @@ class AccountInvoiceCompras(models.Model):
     _rec_name = 'date'
     _order = 'date desc'
 
-    # Depende de los campos adicionales:
-    #    x_studio_bien_o_servicio  en el producto, que determina si es bien o servicio
-    #    x_studio_serie  en la factura, el número de serie
-
-    # ==== Invoice fields ====
     vat = fields.Char(string='NIT', readonly=True)
     partner_id = fields.Many2one('res.partner', string='Nombre', readonly=True)
     move_id = fields.Many2one('account.move', readonly=True, string="Factura")
@@ -76,9 +71,6 @@ class AccountInvoiceCompras(models.Model):
     }
 
     def imprimir(self, fields, domain, context):
-        """
-          Imprimir el reporte basado en un @domain (filtro) y sólo los campos incluidos en el array @fields. El contexto ( @context ) define la compañía, el idioma, etc. Esto se llama por ahora desde el frontend, en la vista de lista del informe.
-        """
         report_action = self.env.ref("libros_conta.action_imprimir_libro_compras")
         model = self.with_context(**context)
         searchresult = model.search(domain, offset=0, limit=False, order=False)
@@ -141,6 +133,10 @@ class AccountInvoiceCompras(models.Model):
 
     @api.model
     def _from(self):
+        # CORRECCIÓN JSONB: Se cambia fispos.name por (fispos.name ->> 'en_US') o casting a texto
+        # NOTA: En Odoo 18 el campo 'name' es JSONB. Usamos CAST(fispos.name as text) para comparar seguro,
+        # o extraemos el valor. Como el error es "invalid input syntax for type json", el CAST a text es lo mas rapido.
+        
         return '''
           FROM
           (
@@ -155,14 +151,16 @@ class AccountInvoiceCompras(models.Model):
               move.move_type,
               move.date AS "date",
               move.date AS filter_date,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente' THEN line.balance ELSE 0 END)  AS mbase,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente'  THEN 0.12*line.balance ELSE 0 END)  AS mimpuestos,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente'  THEN line.balance ELSE 0 END) AS sbase,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo')) AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente' THEN 0.12*line.balance ELSE 0 END) AS simpuestos,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN line.balance ELSE 0 END) AS mpcbase,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo')  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN 0*line.balance ELSE 0 END) AS mpcimpuestos,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN line.balance ELSE 0 END) AS spcbase,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN 0 ELSE 0 END) AS spcimpuestos
+              
+              -- CORRECCIÓN AQUI: Usamos CAST(fispos.name as VARCHAR) para evitar error JSON
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END)  AS mbase,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN 0.12*line.balance ELSE 0 END)  AS mimpuestos,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN line.balance ELSE 0 END) AS sbase,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo')) AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%' THEN 0.12*line.balance ELSE 0 END) AS simpuestos,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END) AS mpcbase,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo')  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN 0*line.balance ELSE 0 END) AS mpcimpuestos,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END) AS spcbase,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN 0 ELSE 0 END) AS spcimpuestos
 
 
             FROM account_move_line line
@@ -178,13 +176,13 @@ class AccountInvoiceCompras(models.Model):
             WHERE move.move_type IN ('in_invoice', 'in_refund')
               AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
               AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-              AND line.display_type IS NULL
+              AND NOT line.exclude_from_invoice_tab
               AND move.state NOT IN ('draft', 'cancel')
               AND COALESCE(move.caja_chica, FALSE) = FALSE
               AND
                 ( COALESCE(move.x_studio_nota_de_crdito_interna, FALSE) = FALSE AND COALESCE(refund.x_studio_nota_de_crdito_interna, FALSE) = FALSE)
 
-            GROUP BY move.id, partner.vat, line.partner_id, line.move_id, line.company_id, move.move_type, move.date, move.ref, move.x_studio_serie
+            GROUP BY move.id, partner.vat, line.partner_id, line.move_id, line.company_id, move.move_type, move.date, move.ref, move.x_studio_serie, fispos.name
 
 
             UNION
@@ -200,14 +198,14 @@ class AccountInvoiceCompras(models.Model):
               move.move_type,
               move.date AS "date",
               move.date AS filter_date,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente' THEN line.balance ELSE 0 END) AS mbase,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente'  THEN 0.12*line.balance ELSE 0 END) AS mimpuestos,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente'  THEN line.balance ELSE 0 END) AS sbase,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo')) AND coalesce(fispos.name,'') <> 'Pequeño Contribuyente' THEN 0.12*line.balance ELSE 0 END) AS simpuestos,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN line.balance ELSE 0 END) AS mpcbase,
-              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo')  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN 0*line.balance ELSE 0 END) AS mpcimpuestos,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN line.balance ELSE 0 END) AS spcbase,
-              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND coalesce(fispos.name,'') = 'Pequeño Contribuyente' THEN 0 ELSE 0 END) AS spcimpuestos
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END) AS mbase,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN 0.12*line.balance ELSE 0 END) AS mimpuestos,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN line.balance ELSE 0 END) AS sbase,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo')) AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%' THEN 0.12*line.balance ELSE 0 END) AS simpuestos,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END) AS mpcbase,
+              SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo')  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN 0*line.balance ELSE 0 END) AS mpcimpuestos,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END) AS spcbase,
+              SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) ILIKE '%Pequeño Contribuyente%' THEN 0 ELSE 0 END) AS spcimpuestos
 
             FROM account_move_line line
               LEFT JOIN account_facturaexterna factura ON factura.id = line.facturaexterna
@@ -219,13 +217,13 @@ class AccountInvoiceCompras(models.Model):
 
             WHERE
                   move.move_type IN ('in_invoice', 'in_refund')
-              AND line.display_type IS NULL
+              AND NOT line.exclude_from_invoice_tab
               AND line.facturaexterna IS NOT NULL
               AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
               AND move.state NOT IN ('draft', 'cancel')
               AND move.caja_chica = TRUE
               AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-            GROUP BY factura.id, partner.vat, partner.id, line.move_id, line.company_id, move.date, factura.factura, factura.serie, move.move_type
+            GROUP BY factura.id, partner.vat, partner.id, line.move_id, line.company_id, move.date, factura.factura, factura.serie, move.move_type, fispos.name
           ) temptable
         '''
 
