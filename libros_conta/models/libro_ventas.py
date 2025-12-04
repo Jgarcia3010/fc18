@@ -156,9 +156,10 @@ WHERE
       move.move_type IN ('out_invoice', 'out_refund')
       AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
       AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-      -- CORRECCIÓN ODOO 18: exclude_from_invoice_tab eliminado. 
-      -- Usamos display_type = 'product' para filtrar lineas de productos reales.
+      
+      -- CORRECCIÓN ODOO 18: Reemplazamos exclude_from_invoice_tab por display_type
       AND line.display_type = 'product'
+      
       AND move.state NOT IN ('draft', 'cancel')
 
 GROUP BY
