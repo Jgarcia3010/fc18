@@ -31,7 +31,6 @@
             'libros_conta/static/src/xml/libros.xml',
             'libros_conta/static/src/xml/listview_buttons.xml',
             'libros_conta/static/src/js/libros.js',
-            'libros_conta/static/src/js/libros_list_view.js',
         ],
     },
 
