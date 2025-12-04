@@ -133,10 +133,6 @@ class AccountInvoiceCompras(models.Model):
 
     @api.model
     def _from(self):
-        # CORRECCIÓN JSONB: Se cambia fispos.name por (fispos.name ->> 'en_US') o casting a texto
-        # NOTA: En Odoo 18 el campo 'name' es JSONB. Usamos CAST(fispos.name as text) para comparar seguro,
-        # o extraemos el valor. Como el error es "invalid input syntax for type json", el CAST a text es lo mas rapido.
-        
         return '''
           FROM
           (
@@ -151,8 +147,6 @@ class AccountInvoiceCompras(models.Model):
               move.move_type,
               move.date AS "date",
               move.date AS filter_date,
-              
-              -- CORRECCIÓN AQUI: Usamos CAST(fispos.name as VARCHAR) para evitar error JSON
               SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%' THEN line.balance ELSE 0 END)  AS mbase,
               SUM(CASE WHEN template.x_studio_bien_o_servicio IN ('bien', 'articulo') AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN 0.12*line.balance ELSE 0 END)  AS mimpuestos,
               SUM(CASE WHEN (coalesce(template.x_studio_bien_o_servicio,'') NOT IN ('bien', 'articulo'))  AND CAST(coalesce(fispos.name,'') AS VARCHAR) NOT ILIKE '%Pequeño Contribuyente%'  THEN line.balance ELSE 0 END) AS sbase,
@@ -176,7 +170,10 @@ class AccountInvoiceCompras(models.Model):
             WHERE move.move_type IN ('in_invoice', 'in_refund')
               AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
               AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-              AND NOT line.exclude_from_invoice_tab
+              
+              -- CORRECCIÓN ODOO 18: display_type = 'product'
+              AND line.display_type = 'product'
+              
               AND move.state NOT IN ('draft', 'cancel')
               AND COALESCE(move.caja_chica, FALSE) = FALSE
               AND
@@ -217,7 +214,10 @@ class AccountInvoiceCompras(models.Model):
 
             WHERE
                   move.move_type IN ('in_invoice', 'in_refund')
-              AND NOT line.exclude_from_invoice_tab
+              
+              -- CORRECCIÓN ODOO 18: display_type = 'product'
+              AND line.display_type = 'product'
+              
               AND line.facturaexterna IS NOT NULL
               AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
               AND move.state NOT IN ('draft', 'cancel')

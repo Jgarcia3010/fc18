@@ -102,7 +102,10 @@ class ReportCostos(models.Model):
             WHERE
                 move.move_type IN ('in_invoice', 'in_refund')
                 AND COALESCE(product.default_code, '') <> 'ISR RETENCIONES'
-                AND line.display_type IS NULL
+                
+                -- CORRECCIÓN ODOO 18
+                AND line.display_type = 'product'
+                
                 AND line.facturaexterna IS NOT NULL
                 AND move.state NOT IN ('draft', 'cancel')
                 AND move.caja_chica = TRUE

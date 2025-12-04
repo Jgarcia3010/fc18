@@ -127,9 +127,6 @@ class AccountInvoiceVentas(models.Model):
 
     @api.model
     def _from(self):
-        # CORRECCIÓN IMPORTANTE: En Odoo 18, si usas 'x_studio_bien_o_servicio',
-        # asegúrate de que el campo exista en product.template.
-        # Además, si agregas filtros por nombre de posición fiscal en el futuro, recuerda usar CAST(name AS VARCHAR)
         return '''
             FROM
             (
@@ -159,7 +156,9 @@ WHERE
       move.move_type IN ('out_invoice', 'out_refund')
       AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
       AND COALESCE(partner.exclude_libros, FALSE) = FALSE
-      AND NOT line.exclude_from_invoice_tab
+      -- CORRECCIÓN ODOO 18: exclude_from_invoice_tab eliminado. 
+      -- Usamos display_type = 'product' para filtrar lineas de productos reales.
+      AND line.display_type = 'product'
       AND move.state NOT IN ('draft', 'cancel')
 
 GROUP BY
