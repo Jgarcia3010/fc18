@@ -17,7 +17,6 @@ export class LibrosController extends ListController {
         const domain = state.domain;
         const resModel = state.resModel;
         
-        // Obtener los campos exportables
         const fields = Object.keys(state.activeFields).filter(
             fieldName => {
                 const field = state.fields[fieldName];
@@ -46,8 +45,7 @@ export class LibrosController extends ListController {
     }
 }
 
-// --- ESTA ERA LA LÍNEA PROBLEMÁTICA (Versión Anterior) ---
-LibrosController.template = "libros_conta.ListView.Buttons"; 
+// ✅ NO asignar template aquí - la herencia XML funciona automáticamente
 
 export const librosListView = {
     ...listView,
