@@ -17,6 +17,7 @@ export class LibrosController extends ListController {
         const domain = state.domain;
         const resModel = state.resModel;
         
+        // Obtener los campos exportables
         const fields = Object.keys(state.activeFields).filter(
             fieldName => {
                 const field = state.fields[fieldName];
@@ -45,11 +46,14 @@ export class LibrosController extends ListController {
     }
 }
 
-LibrosController.template = "libros_conta.ListView.Buttons";
+// --- CORRECCIÓN: Quitamos esta línea que rompía la vista ---
+// LibrosController.template = "libros_conta.ListView.Buttons"; 
 
 export const librosListView = {
     ...listView,
     Controller: LibrosController,
+    // --- CORRECCIÓN: Agregamos esto para usar tus botones personalizados ---
+    buttonTemplate: "libros_conta.ListView.Buttons", 
 };
 
-registry.category("views").add("libros_conta_list_view", librosListView);
+registry.category("views").add("libros_list_view", librosListView);
