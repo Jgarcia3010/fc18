@@ -46,14 +46,12 @@ export class LibrosController extends ListController {
     }
 }
 
-// --- CORRECCIÓN: Quitamos esta línea que rompía la vista ---
-// LibrosController.template = "libros_conta.ListView.Buttons"; 
+// --- ESTA ERA LA LÍNEA PROBLEMÁTICA (Versión Anterior) ---
+LibrosController.template = "libros_conta.ListView.Buttons"; 
 
 export const librosListView = {
     ...listView,
     Controller: LibrosController,
-    // --- CORRECCIÓN: Agregamos esto para usar tus botones personalizados ---
-    buttonTemplate: "libros_conta.ListView.Buttons", 
 };
 
 registry.category("views").add("libros_list_view", librosListView);
