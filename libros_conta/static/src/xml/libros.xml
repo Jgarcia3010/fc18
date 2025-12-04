@@ -2,9 +2,9 @@
 <odoo>
     <template id="libros_list_view_buttons" name="Libros List View Buttons">
         <t t-name="libros_conta.ListView.Buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="extension">
-            <xpath expr="//button[last()]" position="after">
+            <xpath expr="//button[hasclass('o_list_button_add')]" position="after">
                 <button class="btn btn-primary" type="button" t-on-click="onClickImprimir">
-                    <i class="fa fa-print"/> Imprimir
+                    <i class="fa fa-print me-1"></i> Imprimir
                 </button>
             </xpath>
         </t>
