@@ -10,6 +10,7 @@ export class LibrosController extends ListController {
         super.setup();
         this.orm = useService("orm");
         this.action = useService("action");
+        this.notification = useService("notification");
     }
 
     async onClickImprimir() {
@@ -45,11 +46,10 @@ export class LibrosController extends ListController {
     }
 }
 
-// ✅ NO asignar template aquí - la herencia XML funciona automáticamente
-
 export const librosListView = {
     ...listView,
     Controller: LibrosController,
+    buttonTemplate: "libros_conta.ListView.Buttons",
 };
 
 registry.category("views").add("libros_list_view", librosListView);
