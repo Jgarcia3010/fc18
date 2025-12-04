@@ -8,7 +8,7 @@
     'description': 'Módulo para reportes de libros de compras y ventas',
     'website': "http://www.guilles.website",
     
-    'depends': ['base', 'account', 'purchase', 'product'], 
+    'depends': ['base', 'account', 'purchase', 'product', 'odoo-payment-journal'],
 
     'data': [
         'security/ir.model.access.csv',
