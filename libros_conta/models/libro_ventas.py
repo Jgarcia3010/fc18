@@ -127,6 +127,7 @@ class AccountInvoiceVentas(models.Model):
 
     @api.model
     def _from(self):
+        # CORRECCIÓN: Se duplicaron los símbolos '%' a '%%' en los ILIKE para evitar el TypeError de Python
         return '''
             FROM
             (
@@ -157,7 +158,7 @@ WHERE
       AND COALESCE(template.exclude_libros, template.exclude_libros, FALSE) = FALSE
       AND COALESCE(partner.exclude_libros, FALSE) = FALSE
       
-      -- CORRECCIÓN ODOO 18: Reemplazamos exclude_from_invoice_tab por display_type
+      -- Corrección anterior mantenida (display_type)
       AND line.display_type = 'product'
       
       AND move.state NOT IN ('draft', 'cancel')
